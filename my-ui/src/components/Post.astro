@@ -1,0 +1,9 @@
+---
+export interface Props {
+	post: Object
+}
+const { post } = Astro.props;
+---
+<astro-post content={post.content} date={post.creation_date} votes={post.votes} pid={post.id}></astro-post>
+
+<script src="./../scripts/astroPost.js"></script>

@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TextArea from '../components/TextArea.astro';
+import { userUUID } from '../scripts/getUuid.js';
+import Post from '../components/Post.astro';
+
+const data = await fetch('http://my-api-app-service:7778/api/getPosts?group=1').then((response) =>
+  response.json()
+);
+
+---
+<Layout title="Not jodel">
+	<main>
+		<h1>Not jodel but <span class="text-gradient">cool</span> anyway</h1>
+		<TextArea
+			hidden={userUUID}
+			placeholder="Write a new cool message"
+		/>
+		<ul role="list" class="link-card-grid" id="messages">
+			{data.map((post) => (
+				<Post
+					post={post}
+				/>
+			))}
+		</ul>
+	</main>
+</Layout>
+<script>
+	let group = 1;
+	const atEnd = () => {
+		var c = [document.scrollingElement.scrollHeight, document.body.scrollHeight, document.body.offsetHeight].sort(function(a,b){return b-a})
+		return (window.innerHeight + window.scrollY + 2 >= c[0]) // compare with scroll position + some give
+	}
+	const scrolling = async() => {
+		if (atEnd()){
+			group++;
+			const posts = await fetch('/api/getPosts?group='+group);
+			const body = await posts.json();
+			const list = document.getElementById("messages");
+			body.map((post) => {
+				const element = document.createElement("astro-post");
+				element.setAttribute("content", post.content);
+				element.setAttribute("date", post.creation_date);
+				element.setAttribute("votes", post.votes);
+				element.setAttribute("pid", post.id);
+				element.setValues();
+				list.append(element);
+			});
+		}
+	}
+	window.addEventListener('scroll', scrolling)
+</script>
+<script src="../scripts/savePost.js"></script>
+<style is:global>
+	.instructions {
+		line-height: 1.6;
+		margin: 1rem 0;
+		border: 1px solid rgba(var(--accent), 25%);
+		background-color: white;
+		padding: 1rem;
+		border-radius: 0.4rem;
+	}
+	.instructions strong {
+		color: rgb(var(--accent));
+	}
+	.link-card-grid {
+		display: grid;
+		gap: 1rem;
+		padding: 0;
+	}
+
+	.link-card {
+		list-style: none;
+		display: flex;
+		padding: 0.15rem;
+		background-color: white;
+		background-image: var(--accent-gradient);
+		background-size: 400%;
+		border-radius: 0.5rem;
+		background-position: 100%;
+		transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+	}
+
+	.link-card > a {
+		width: 80%;
+		text-decoration: none;
+		line-height: 1.4;
+		padding: 1rem 1.3rem;
+		border-radius: 0.35rem;
+		color: #111;
+		background-color: white;
+		opacity: 0.8;
+	}
+	h2 {
+		margin: 0;
+		font-size: 1.25rem;
+		transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	p {
+		margin-top: 0.5rem;
+		margin-bottom: 0;
+		color: #444;
+	}
+	.link-card:is(:hover, :focus-within) {
+		background-position: 0;
+	}
+	.link-card:is(:hover, :focus-within) h2 {
+		color: rgb(var(--accent));
+	}
+	.btn{
+		background-color: white;
+		border-radius: 0.5rem;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    }
+    .btn:is(:hover, :focus-within) {
+        background-position: 0;
+		color: rgb(var(--accent));
+		background-color: rgb(111, 188, 232);
+	}
+
+	.votes {
+		margin-left: 3%;
+		width: 7%;
+		text-align: center;
+	}
+	.small {
+		font-size: 25%;
+	}
+
+	.up, .down{
+        width: 100%;
+        height: 2.5rem;
+        margin-top: 8%;
+        margin-bottom: 8%;
+		background-color: white;
+		border-radius: 0.5rem;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    }
+</style>

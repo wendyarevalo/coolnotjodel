@@ -1,0 +1,137 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TextArea from '../../components/TextArea.astro';
+
+const { postId } = Astro.params;
+---
+<script src="../../scripts/astroPost.js"></script>
+<script src="../../scripts/astroReply.js"></script>
+<Layout title="Not jodel">
+	<main>
+		<h1>Not jodel but <span class="text-gradient">cool</span> anyway</h1>
+        <input type="hidden" id="post_id" value={postId}>
+        <div id="post"></div>
+        <TextArea
+            hidden={postId.toString()}
+            placeholder="Write a new cool reply"
+        />
+        <div id="replies"></div>
+    </main>
+</Layout>
+<script>
+    window.onload = async () => {
+        const id = document.getElementById("post_id").value;
+
+        const r = await fetch('../api/getSinglePost?post_id='+id);
+        const body = await r.json();
+        const div = document.getElementById("post")
+        const element = document.createElement("astro-post");
+        element.setAttribute("content", body[0].content);
+        element.setAttribute("date", body[0].creation_date);
+        element.setAttribute("votes", body[0].votes);
+        element.setAttribute("pid", body[0].id);
+        element.setValues();
+        div.append(element);
+
+        const replies = await fetch('../api/getReplies?post_id='+id);
+        const bodyReplies = await replies.json();
+        console.log(bodyReplies);
+        const list = document.getElementById("replies");
+        list.innerHTML = "";
+        bodyReplies.map((reply) => {
+          const rep = document.createElement("astro-reply");
+          rep.setAttribute("content", reply.reply);
+          rep.setValues();
+          list.append(rep);
+        });
+    }
+</script>
+<script src="../../scripts/saveResponse.js"></script>
+
+<style is:global>
+	.instructions {
+		line-height: 1.6;
+		margin: 1rem 0;
+		border: 1px solid rgba(var(--accent), 25%);
+		background-color: white;
+		padding: 1rem;
+		border-radius: 0.4rem;
+	}
+	.instructions strong {
+		color: rgb(var(--accent));
+	}
+	.link-card-grid {
+		display: grid;
+		gap: 1rem;
+		padding: 0;
+	}
+
+	.link-card {
+		list-style: none;
+		display: flex;
+		padding: 0.15rem;
+		background-color: white;
+		background-image: var(--accent-gradient);
+		background-size: 400%;
+		border-radius: 0.5rem;
+		background-position: 100%;
+		transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+	}
+
+	.link-card > a {
+		width: 80%;
+		text-decoration: none;
+		line-height: 1.4;
+		padding: 1rem 1.3rem;
+		border-radius: 0.35rem;
+		color: #111;
+		background-color: white;
+		opacity: 0.8;
+	}
+	h2 {
+		margin: 0;
+		font-size: 1.25rem;
+		transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	p {
+		margin-top: 0.5rem;
+		margin-bottom: 0;
+		color: #444;
+	}
+	.link-card:is(:hover, :focus-within) {
+		background-position: 0;
+	}
+	.link-card:is(:hover, :focus-within) h2 {
+		color: rgb(var(--accent));
+	}
+	.btn{
+		background-color: white;
+		border-radius: 0.5rem;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    }
+    .btn:is(:hover, :focus-within) {
+        background-position: 0;
+		color: rgb(var(--accent));
+		background-color: rgb(111, 188, 232);
+	}
+
+	.votes {
+		margin-left: 3%;
+		width: 7%;
+		text-align: center;
+	}
+	.small {
+		font-size: 25%;
+	}
+
+	.up, .down{
+        width: 100%;
+        height: 2.5rem;
+        margin-top: 8%;
+        margin-bottom: 8%;
+		background-color: white;
+		border-radius: 0.5rem;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    }
+</style>

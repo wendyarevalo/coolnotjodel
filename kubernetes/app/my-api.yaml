@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-api-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-api-app
+  template:
+    metadata:
+      labels:
+        app: my-api-app
+    spec:
+      containers:
+        - name: my-api-app
+          image: my-api:latest
+          resources:
+            requests:
+              cpu: 250m
+            limits:
+              cpu: 500m
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 7778
+          env:
+            - name: PGPASS
+              valueFrom:
+                secretKeyRef:
+                  name: my-database-cluster-app
+                  key: pgpass
+                  optional: false # stating that the secret "my-database-cluster-app" must exist

@@ -1,0 +1,11 @@
+---
+export interface Props {
+	body: string
+}
+const { body } = Astro.props;
+---
+
+<astro-reply content={body}></astro-reply>
+
+<script src="./../scripts/astroReply.js"></script>
+
